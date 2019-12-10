@@ -3,11 +3,8 @@ package org.izv.pgc.chatbot;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.speech.tts.TextToSpeech;
@@ -43,13 +40,10 @@ import java.util.Map;
 public class ChatActivity extends AppCompatActivity implements TextToSpeech.OnInitListener  {
     private static final String TAG = "TextToSpeechDemo";
     private ConstraintLayout clMain;
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager layoutManager;
     private TextToSpeech mTts;
     private Button btSend;
     private String textoUser;
-    private EditText etText;
+    private EditText etText, etMessagaList;
     private List<Message> messageList;
     private ProgressBar pbThink;
 
@@ -72,23 +66,6 @@ public class ChatActivity extends AppCompatActivity implements TextToSpeech.OnIn
         return dateFormat.format(date);
     }
 
-    private void updateRecycler(List<Message> messageList){
-        if(messageList.size()>0) {
-            ChatViewAdapter myAdapter = new ChatViewAdapter(messageList, new ChatViewAdapter.onItemClickListener() {
-                @Override
-                public void onItemClick(Message message) {
-                    Toast.makeText(ChatActivity.this, "Mensaje " + message.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            recyclerView.setAdapter(myAdapter);
-        }
-        else{
-            TextView tv = new TextView(getApplicationContext());
-            tv.setText("No hay Mensajes");
-            clMain.addView(tv);
-
-        }
-    }
 
     private void initEvents() {
 
@@ -101,13 +78,8 @@ public class ChatActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 pbThink.setVisibility(View.VISIBLE);
 
                 textoUser = etText.getText().toString();
-               /* Message message = new Message();
-                message.setFrom(false);
-                message.setMessage(textoUser);
-                message.setTime(getShortTime());
-                messageList.add(message);
-                updateRecycler(messageList);*/
-                //talkMe(textoUser);
+                etMessagaList.setText(etMessagaList.getText()+"user> " + textoUser + "\n");
+
                 System.out.println("user> " + textoUser);
                 new TranslateToEng(textoUser).execute();
                 //new Chat(textoUser).execute();
@@ -120,7 +92,7 @@ public class ChatActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     private void initComponents() {
         clMain = findViewById(R.id.clMain);
-        recyclerView = findViewById(R.id.messageList);
+        etMessagaList = findViewById(R.id.messageList);
         btSend = findViewById(R.id.btSend);
         etText = findViewById(R.id.etText);
         pbThink = findViewById(R.id.progressBar);
@@ -333,6 +305,7 @@ public class ChatActivity extends AppCompatActivity implements TextToSpeech.OnIn
             s = decomposeJson(s);
             System.out.println("TRADUCCIONESP: "+s);
             pbThink.setVisibility(View.INVISIBLE);
+            etMessagaList.setText(etMessagaList.getText()+"bot> " + s +"\n");
             talkMe(s);
         }
     }
